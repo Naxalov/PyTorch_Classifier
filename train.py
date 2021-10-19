@@ -21,9 +21,15 @@ print('Val:',len(test_data))
 # Visualizing the Dataset
 # show_data(test_data[0])
 
-show_grid(test_data,save=True)
+#Iterate through the DataLoader
+
+# show_grid(test_data,save=True)
 
 # Preparing your data for training with DataLoader
 
 train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True)
 test_dataloader = DataLoader(test_data, batch_size=16, shuffle=True)
+
+
+train_features, train_labels  = next(iter(train_dataloader))
+show_data((train_features[0], train_labels[0]))
