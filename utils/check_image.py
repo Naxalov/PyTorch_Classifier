@@ -24,5 +24,6 @@ parser.add_argument('--dir', default='data/PetImages', type=str, help='dataset f
 args = parser.parse_args()
 DATA_DIR = args.dir
 DATA_LIST = list(Path('data/PetImages/').glob('*/*.jpg'))
+
+check_image_dir(DATA_LIST)
 #python utils/check_image.py --dir='data/PetImages'
-print(DATA_LIST[0])
