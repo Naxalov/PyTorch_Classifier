@@ -1,5 +1,7 @@
+import torch
+from torch.utils.data import DataLoader
 from torch.utils.data import dataset
-from utils.datasets import CatDogDataset,split_dataset
+from utils.datasets import CatDogDataset,split_dataset,show_data,show_grid
 from pathlib import Path
 
 # Data Preperation
@@ -15,3 +17,13 @@ print('number of dataset:',len(dataset))
 print('Train:',len(train_data))
 
 print('Val:',len(test_data))
+
+# Visualizing the Dataset
+# show_data(test_data[0])
+
+show_grid(test_data,save=True)
+
+# Preparing your data for training with DataLoader
+
+train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True)
+test_dataloader = DataLoader(test_data, batch_size=16, shuffle=True)
