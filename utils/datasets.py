@@ -75,7 +75,7 @@ def show_data(data):
     # plt.imshow(img, cmap="gray")
     # plt.show()
     # print(f"Label: {label}")
-    
+
 def show_grid(dataset,save=False):
     figure = plt.figure(figsize=(8, 8))
     cols, rows = 3, 3
@@ -95,6 +95,6 @@ def show_grid(dataset,save=False):
         plt.imshow(img, cmap="gray")
     # Save as file
     if save:
-        plt.savefig(fname='1.jpg',dpi=200)
+        plt.savefig(fname='1.jpg',dpi=100)
     else:
         plt.show()
