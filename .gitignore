@@ -1,3 +1,14 @@
+# CUSTOM
+data/PetImages/*
+
+
+
+
+visualization/
+
+
+
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,archive,venv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,archive,venv
@@ -25,6 +36,7 @@
 *.mar
 # A common archive format used on Unix-like systems. Generally used in conjunction with compressors such as gzip, bzip2, compress or xz to create .tar.gz, .tar.bz2, .tar.Z or tar.xz files.
 *.tar
+*.zip
 
 # Package managers
 # Red Hat Package Manager
@@ -94,7 +106,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-
 # Translations
 *.mo
 *.pot
