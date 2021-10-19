@@ -4,6 +4,10 @@ from torch.utils.data import dataset
 from utils.datasets import CatDogDataset,split_dataset,show_data,show_grid
 from pathlib import Path
 
+# Select device
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print('Doing computations on device = {}'.format(device))
+
 # Data Preperation
 DATA_DIR = Path('data/PetImages')
 
