@@ -49,9 +49,12 @@ def split_dataset(dataset,test_size):
   #Pick first n_val indices for validation set
   return train_data,test_data
 
+#Visualizing the Dataset
 def show_data(data):
+    # DATASET
     # Display image and label.
     img,label = data
+    # in tensor, image is (batch, width, height), so you have to transpose it to (width, height, batch) in numpy to show it.
     img = np.transpose(img, (1,2,0))
     if label==1:
         txt='Dog'
@@ -73,3 +76,25 @@ def show_data(data):
     # plt.show()
     # print(f"Label: {label}")
     
+def show_grid(dataset,save=False):
+    figure = plt.figure(figsize=(8, 8))
+    cols, rows = 3, 3
+    for i in range(1, cols * rows + 1):
+        sample_idx = torch.randint(len(dataset), size=(1,)).item()
+        img, label = dataset[sample_idx]
+        if label==1:
+            txt='Dog'
+        else:
+            txt='Cat'
+
+        figure.add_subplot(rows, cols, i)
+        plt.title(txt)
+        plt.axis("off")
+        # in tensor, image is (batch, width, height), so you have to transpose it to (width, height, batch) in numpy to show it.
+        img = np.transpose(img, (1,2,0))
+        plt.imshow(img, cmap="gray")
+    # Save as file
+    if save:
+        plt.savefig(fname='1.jpg',dpi=200)
+    else:
+        plt.show()
