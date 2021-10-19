@@ -30,6 +30,7 @@ print('Val:',len(test_data))
 train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True)
 test_dataloader = DataLoader(test_data, batch_size=16, shuffle=True)
 
-
+# Visualizations single dataloader (Display image and label.)
+# Iterate through the DataLoader
 train_features, train_labels  = next(iter(train_dataloader))
 show_data((train_features[0], train_labels[0]))
