@@ -50,33 +50,29 @@ def split_dataset(dataset,test_size):
   return train_data,test_data
 
 #Visualizing the Dataset
-def show_data(data):
+def show_data(data,save=False,fname='image_label'):
     # DATASET
     # Display image and label.
     img,label = data
     # in tensor, image is (batch, width, height), so you have to transpose it to (width, height, batch) in numpy to show it.
     img = np.transpose(img, (1,2,0))
+    fig, ax = plt.subplots()
     if label==1:
         txt='Dog'
     else:
         txt='Cat'
+        
+    plt.axis("off")
     plt.title(txt)
-    plt.imshow(img)
-    plt.show()
-    
-    # train_features, train_labels = next(iter(train_dataloader))
-    # print(f"Feature batch shape: {train_features.size()}")
-    # print(f"Labels batch shape: {train_labels.size()}")
-    # # So we need to reshape it to (H, W, C):
-    # img = train_features[0].permute(1, 2, 0)
+    ax.imshow(img)
+    # Save as file
+    if save:
+        plt.savefig(fname=f'visualization/{fname}.jpg',dpi=100)
+    else:
+        plt.show()
 
 
-    # label = train_labels[0]
-    # plt.imshow(img, cmap="gray")
-    # plt.show()
-    # print(f"Label: {label}")
-
-def show_grid(dataset,save=False):
+def show_grid(dataset,save=False,fname='image_grid'):
     figure = plt.figure(figsize=(8, 8))
     cols, rows = 3, 3
     for i in range(1, cols * rows + 1):
@@ -95,6 +91,6 @@ def show_grid(dataset,save=False):
         plt.imshow(img, cmap="gray")
     # Save as file
     if save:
-        plt.savefig(fname='1.jpg',dpi=100)
+        plt.savefig(fname=f'visualization/{fname}.jpg',dpi=100)
     else:
         plt.show()
