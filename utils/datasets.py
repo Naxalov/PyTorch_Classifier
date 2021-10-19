@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import Dataset,DataLoader,random_split
 from PIL import Image
 
@@ -22,3 +23,14 @@ class CatDogDataset(Dataset):
     return img,label
   def __len__(self):
     return len(self.data_list)
+
+
+def split_dataset(dataset,test_size):
+  # Determine size of validation set
+  dataset_n = len(dataset)
+  test_n =int(dataset_n*.8)
+  train_n =dataset_n-test_n
+  train_data ,test_data = random_split(dataset, [train_n, test_n], generator=torch.Generator().manual_seed(42))  
+  
+  # Pick first n_val indices for validation set
+  return train_data,test_data
