@@ -1,6 +1,8 @@
 import torch
 from torchvision import transforms
 from torch.utils.data import Dataset,DataLoader,random_split
+import matplotlib.pyplot as plt
+import numpy as np
 
 from PIL import Image
 
@@ -24,6 +26,8 @@ class CatDogDataset(Dataset):
     img = Image.open(self.data_list[idx])
     if self.transform:
           img = self.transform(img)
+    else:
+        img = data_transform(img)
     # img = img.numpy().astype(np.float32)
     if 'Dog' in self.data_list[idx].parts:
       label = 1
@@ -44,3 +48,28 @@ def split_dataset(dataset,test_size):
   
   #Pick first n_val indices for validation set
   return train_data,test_data
+
+def show_data(data):
+    # Display image and label.
+    img,label = data
+    img = np.transpose(img, (1,2,0))
+    if label==1:
+        txt='Dog'
+    else:
+        txt='Cat'
+    plt.title(txt)
+    plt.imshow(img)
+    plt.show()
+    
+    # train_features, train_labels = next(iter(train_dataloader))
+    # print(f"Feature batch shape: {train_features.size()}")
+    # print(f"Labels batch shape: {train_labels.size()}")
+    # # So we need to reshape it to (H, W, C):
+    # img = train_features[0].permute(1, 2, 0)
+
+
+    # label = train_labels[0]
+    # plt.imshow(img, cmap="gray")
+    # plt.show()
+    # print(f"Label: {label}")
+    
