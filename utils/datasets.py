@@ -42,5 +42,5 @@ def split_dataset(dataset,test_size):
   train_n =dataset_n-test_n
   train_data ,test_data = random_split(dataset, [train_n, test_n], generator=torch.Generator().manual_seed(42))  
   
-  # Pick first n_val indices for validation set
+  #Pick first n_val indices for validation set
   return train_data,test_data
