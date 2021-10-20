@@ -6,6 +6,8 @@ import numpy as np
 
 from PIL import Image
 
+# std_normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+#                           std=[0.229, 0.224, 0.225])
 data_transform = transforms.Compose([
     transforms.Resize(256),
     # transforms.ColorJitter(),
@@ -95,3 +97,17 @@ def show_grid(dataset,save=False,fname='image_grid'):
         plt.savefig(fname=f'visualization/{fname}.jpg',dpi=100)
     else:
         plt.show()
+
+def get_all_preds(model,loader):
+  '''
+  get pred and true label
+  '''
+  y_pred = []
+  y_true = []
+  for batch in loader:
+    images, labels = batch
+    preds = model(images)
+    y_pred.extend(preds.argmax(dim=1).numpy())
+    y_true.extend(labels.numpy())  
+
+  return y_true,y_pred
