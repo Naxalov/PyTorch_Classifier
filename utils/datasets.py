@@ -98,16 +98,3 @@ def show_grid(dataset,save=False,fname='image_grid'):
     else:
         plt.show()
 
-def get_all_preds(model,loader):
-  '''
-  get pred and true label
-  '''
-  y_pred = []
-  y_true = []
-  for batch in loader:
-    images, labels = batch
-    preds = model(images)
-    y_pred.extend(preds.argmax(dim=1).numpy())
-    y_true.extend(labels.numpy())  
-
-  return y_true,y_pred
