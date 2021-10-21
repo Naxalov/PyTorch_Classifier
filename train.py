@@ -1,3 +1,4 @@
+from numpy import mod
 import torch
 import torch.nn as nn
 
@@ -7,12 +8,18 @@ from torchvision import transforms
 import torchvision
 from utils.datasets import CatDogDataset,split_dataset,show_data,show_grid
 from pathlib import Path
-from models.model import CustomVGG11,VGG11
+from models.model import CustomVGG11,VGG11,CIFAR10_CNN,densenet161
 from tqdm import tqdm
-
+import time
 from sklearn.metrics import confusion_matrix
+
 # Select device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# Hyper parameters
+
+num_classes = 5
+
 print('Doing computations on device = {}'.format(device))
 
 # Data Preperation
@@ -23,12 +30,14 @@ DATA_DIR = Path('data/PetImages')
 std_normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                           std=[0.229, 0.224, 0.225])
 trans = transforms.Compose([
-        transforms.Resize(256),
+        transforms.Resize(255),
         transforms.CenterCrop(224),
+        # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(), 
-        std_normalize])
-dataset = torchvision.datasets.ImageFolder('data/PetImages',transform=trans)
-
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+# dataset = torchvision.datasets.ImageFolder('data/PetImages',transform=trans)
+dataset = torchvision.datasets.ImageFolder('data/flower_photos',transform=trans)
 
 train_data,test_data = split_dataset(dataset=dataset,test_size=0.2)
 
@@ -44,12 +53,12 @@ print('Val:',len(test_data))
 
 #Iterate through the DataLoader
 
-# show_grid(test_data,save=True)
+show_grid(test_data,save=True)
 
 # Preparing your data for training with DataLoader
 
-train_dataloader = DataLoader(train_data, batch_size=16, shuffle=True)
-test_dataloader = DataLoader(test_data, batch_size=16, shuffle=True)
+train_dataloader = DataLoader(train_data, batch_size=8, shuffle=True)
+test_dataloader = DataLoader(test_data, batch_size=8, shuffle=True)
 
 # Visualizations single dataloader (Display image and label.)
 # Iterate through the DataLoader
@@ -57,11 +66,32 @@ train_features, train_labels  = next(iter(train_dataloader))
 show_data((train_features[0], train_labels[0]),save=True)
 
 
-model = CustomVGG11().to(device)
-# model = VGG11(num_classes=2).to(device)
+# model = CustomVGG11(num_classes=5,feature_extract=False).to(device)
+# model = VGG11(num_classes=10)
+model = densenet161(num_classes=5)
+model = model.to(device)
 x = torch.randn(2,3,224,224).to(device)
 y = model(x)
 print(y.size())
+
+
+def get_all_preds(model,loader):
+  '''
+  get pred and true label
+  '''
+  y_pred = []
+  y_true = []
+  with torch.no_grad():
+    for batch in loader:
+        images, labels = batch
+        images = images.to(device)
+        labels = labels.to(device)
+        preds = model(images)
+        y_pred.extend(preds.cpu().argmax(dim=1).numpy())
+        y_true.extend(labels.cpu().numpy())  
+
+  return y_true,y_pred
+
 
 
 def validate(net, dataloader,loss_fn=nn.NLLLoss()):
@@ -83,17 +113,23 @@ def validate(net, dataloader,loss_fn=nn.NLLLoss()):
 # loss and optimizer
 learning_rate = 0.01
 # Binary Cross Entropy between the target and the output:
-criterion =nn.CrossEntropyLoss()
+# criterion =nn.CrossEntropyLoss().to(device)
+criterion = nn.NLLLoss()
 optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-num_epochs = 1
+num_epochs = 5
+
 total_step = len(train_dataloader)
-
+print(total_step)
 loss_list     = []
 for epoch in range(num_epochs):
   for i,(train_x,train_y) in enumerate(tqdm(train_dataloader)):
     train_x = train_x.to(device)
     train_y = train_y.to(device)
+  
+    # zero the parameter gradients
+    optimizer.zero_grad()
     # forward pass
     outputs = model(train_x)
     loss = criterion(outputs, train_y)
@@ -102,31 +138,20 @@ for epoch in range(num_epochs):
     loss.backward()
     # update
     optimizer.step()
+  
+  print(f'Epoch[{epoch+1}/{num_epochs}], Loss:{loss.item():.6f}')
 
-    optimizer.zero_grad()
-  vl,va = validate(model,test_dataloader,loss_fn=criterion)
-  if i % 1 == 0:
-    print(f'Epoch[{epoch+1}/{num_epochs}],\t Step [{i+1}/{total_step}] \t loss: {loss.item():.6f}, Val acc={va:.3f} Val loss={vl:.3f}')
+  # vl,va = validate(model,test_dataloader,loss_fn=criterion)
+  # if i % 1 == 0:
+  #   print(f'Epoch[{epoch+1}/{num_epochs}],\t Step [{i+1}/{total_step}] \t loss: {loss.item():.6f}, Val acc={va:.3f} Val loss={vl:.3f}')
+  #   y_true, y_pred = get_all_preds(model, test_dataloader)
+  #   cm = confusion_matrix(y_true, y_pred)
+  #   print(cm)
 
-def get_all_preds(model,loader):
-  '''
-  get pred and true label
-  '''
-  y_pred = []
-  y_true = []
-  with torch.no_grad():
-    for batch in loader:
-        images, labels = batch
-        images = images.to(device)
-        labels = labels.to(device)
-        preds = model(images)
-        y_pred.extend(preds.cpu().argmax(dim=1).numpy())
-        y_true.extend(labels.cpu().numpy())  
 
-  return y_true,y_pred
 
+# torch.save(model,'cats_dogs.pt')
 y_true, y_pred = get_all_preds(model, test_dataloader)
 cm = confusion_matrix(y_true, y_pred)
 print(cm)
 
-# torch.save(model,'cats_dogs.pt')
