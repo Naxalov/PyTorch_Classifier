@@ -12,32 +12,38 @@ from models.model import CustomVGG11,VGG11,CIFAR10_CNN,densenet161
 from tqdm import tqdm
 import time
 from sklearn.metrics import confusion_matrix
+import numpy as np
+
+np.random.seed(101)
+torch.manual_seed(101)
+torch.cuda.manual_seed(101)
 
 # Select device
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Hyper parameters
 
-num_classes = 5
+num_classes = 2
 
 print('Doing computations on device = {}'.format(device))
 
 # Data Preperation
 DATA_DIR = Path('data/PetImages')
 
-# dataset = CatDogDataset(DATA_DIR)
 
 std_normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                           std=[0.229, 0.224, 0.225])
 trans = transforms.Compose([
-        transforms.Resize(255),
-        transforms.CenterCrop(224),
-        # transforms.RandomHorizontalFlip(),
+        transforms.RandomResizedCrop(224),
+        # transforms.Resize(255),
+        # transforms.CenterCrop(224),
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(), 
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        std_normalize,
+        # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
-# dataset = torchvision.datasets.ImageFolder('data/PetImages',transform=trans)
-dataset = torchvision.datasets.ImageFolder('data/flower_photos',transform=trans)
+
+dataset = CatDogDataset(DATA_DIR)
 
 train_data,test_data = split_dataset(dataset=dataset,test_size=0.2)
 
@@ -67,8 +73,8 @@ show_data((train_features[0], train_labels[0]),save=True)
 
 
 # model = CustomVGG11(num_classes=5,feature_extract=False).to(device)
-# model = VGG11(num_classes=10)
-model = densenet161(num_classes=5)
+model = VGG11(num_classes=2)
+# model = densenet161(num_classes=2)
 model = model.to(device)
 x = torch.randn(2,3,224,224).to(device)
 y = model(x)
@@ -113,12 +119,11 @@ def validate(net, dataloader,loss_fn=nn.NLLLoss()):
 # loss and optimizer
 learning_rate = 0.01
 # Binary Cross Entropy between the target and the output:
-# criterion =nn.CrossEntropyLoss().to(device)
-criterion = nn.NLLLoss()
+criterion =nn.CrossEntropyLoss().to(device)
 optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+# optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-num_epochs = 5
+num_epochs = 2
 
 total_step = len(train_dataloader)
 print(total_step)
